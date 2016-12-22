@@ -17,6 +17,7 @@ dialog {
 				alignChildren: "left",
 				txtDest: EditText {preferredSize: [310, 20], properties: {readonly: true}},
 				btnDest: Button {text: "Browse..."}
+				cbFileNameAsFolder: Checkbox {text: "File name as folder", helpTip: "Create a subfolder using the name of the current file without its extension."}
 			},
 			grpLayers: Group {
 				orientation: "row",

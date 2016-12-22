@@ -132,6 +132,7 @@ var USER_SETTINGS_ID = "exportLayersToFilesCustomDefaultSettings";
 var DEFAULT_SETTINGS = {
 	// common
 	destination: app.stringIDToTypeID("destFolder"),
+	fileNameAsFolder: app.stringIDToTypeID("fileNameAsFolder"),
 	overwrite: app.stringIDToTypeID("overwrite"),
 	exportLayerTarget: app.stringIDToTypeID("exportLayerTarget"),
 	nameFiles: app.stringIDToTypeID("nameFiles"),
@@ -185,6 +186,7 @@ function main()
 	catch (e) {
 		prefs.filePath = Folder.myDocuments;
 	}
+	prefs.folder = "";
 	prefs.formatArgs = null;
 	prefs.exportLayerTarget = ExportLayerTarget.ALL_LAYERS;
 	prefs.outputPrefix = "";
@@ -592,7 +594,7 @@ function makeFolderName(group)
 		folderName = "Group";
 	}
 
-	folderName = prefs.filePath + "/" + folderName;
+	folderName = prefs.filePath + prefs.folder + "/" + folderName;
 
 	return folderName;
 }
@@ -644,7 +646,7 @@ function getUniqueFileName(fileName, layer)
 		}
 	}
 
-	fileName = prefs.filePath + "/" + localFolders + fileName;
+	fileName = prefs.filePath + prefs.folder + "/" + localFolders + fileName;
 
 	// Check if the file already exists. In such case a numeric suffix will be added to disambiguate.
 	var uniqueName = fileName;
@@ -809,6 +811,14 @@ function repaintProgressBar(win, force /* = false*/)
 	}
 }
 
+function basename(path) {
+	var base = new String(path);
+	base = base.substring(base.lastIndexOf('/') + 1); 
+	if (base.lastIndexOf(".") != -1)
+		base = base.substring(0, base.lastIndexOf("."));
+	return base;
+}
+
 function showDialog()
 {
 	// read dialog resource
@@ -939,6 +949,11 @@ function showDialog()
 	dlg.funcArea.buttons.btnRun.onClick = function() {
 		// collect arguments for saving and proceed
 
+		var cbFileNameAsFolder = dlg.funcArea.content.grpDest.cbFileNameAsFolder;
+		if (cbFileNameAsFolder.value) {
+			prefs.folder = "/" + basename(app.activeDocument.fullName);
+		}
+
 		prefs.outputPrefix = dlg.funcArea.content.grpPrefix.editPrefix.text;
 		if (prefs.outputPrefix.length > 0) {
 			prefs.outputPrefix += " ";
@@ -1003,6 +1018,7 @@ function applySettings(dlg, formatOpts)
 			grpDest.txtDest.text = destFolder.fsName;
 			prefs.filePath = destFolder;
 		}
+		grpDest.cbFileNameAsFolder.value = settings.fileNameAsFolder;
 
 		switch (settings.exportLayerTarget) {
 
@@ -1084,7 +1100,8 @@ function saveSettings(dlg, formatOpts)
 		}
 
 		desc.putString(DEFAULT_SETTINGS.destination, grpDest.txtDest.text);
-	desc.putBoolean(DEFAULT_SETTINGS.overwrite, dlg.funcArea.buttons.cbOverwrite.value);
+		desc.putBoolean(DEFAULT_SETTINGS.fileNameAsFolder, grpDest.cbFileNameAsFolder.value);
+		desc.putBoolean(DEFAULT_SETTINGS.overwrite, dlg.funcArea.buttons.cbOverwrite.value);
 		desc.putInteger(DEFAULT_SETTINGS.exportLayerTarget, exportLayerTarget);
 		desc.putInteger(DEFAULT_SETTINGS.nameFiles, FileNameType.forIndex(grpNaming.drdNaming.selection.index));
 		desc.putBoolean(DEFAULT_SETTINGS.allowSpaces, grpNaming.cbNaming.value);
@@ -1125,6 +1142,7 @@ function getSettings(formatOpts)
 		result = {
 			// common
 			destination: desc.getString(DEFAULT_SETTINGS.destination),
+			fileNameAsFolder: desc.getBoolean(DEFAULT_SETTINGS.fileNameAsFolder),
 			overwrite:  desc.getBoolean(DEFAULT_SETTINGS.overwrite),
 			exportLayerTarget: desc.getInteger(DEFAULT_SETTINGS.exportLayerTarget),
 			nameFiles: desc.getInteger(DEFAULT_SETTINGS.nameFiles),
