@@ -202,7 +202,7 @@ function main()
 	userCancelled = false;
 
 	// create progress bar
-	var progressBarWindow = createProgressBar();
+	var progressBarWindow = createProgressBar(app.activeDocument.name);
 	if (! progressBarWindow) {
 		return "cancel";
 	}
@@ -740,7 +740,7 @@ function isAdjustmentLayer(layer)
 // User interface
 //
 
-function createProgressBar()
+function createProgressBar(fileName)
 {
 	// read progress bar resource
 	var rsrcFile = new File(env.scriptFileDirectory + "/progress_bar.json");
@@ -758,6 +758,8 @@ function createProgressBar()
 		alert("Progress bar resource is corrupt! Please, redownload the script with all files.", "Error", true);
 		return false;
 	}
+    
+    win.text += fileName;
 
 	win.barRow.cancelBtn.onClick = function() {
 		userCancelled = true;

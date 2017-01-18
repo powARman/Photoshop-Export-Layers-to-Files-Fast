@@ -1,5 +1,5 @@
 palette {
-	text: "Please wait...",
+	text: "Processing: ",
 	preferredSize: [350, 60],
 	orientation: "column",
 	alignChildren: "fill",
