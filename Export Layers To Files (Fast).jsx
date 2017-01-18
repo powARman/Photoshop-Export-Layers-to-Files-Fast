@@ -1004,11 +1004,21 @@ function showDialog()
 		alert("Failed to restore previous settings. Default settings applied.\n\n(Error: " + err.toString() + ")", "Settings not restored", true);
 	}
 
-	var myKeyState = ScriptUI.environment.keyboardState;
-	if (! myKeyState.ctrlKey)
-	{
+	// enable silent mode if requested
+	if (app.playbackDisplayDialogs == DialogModes.ALL)
+		silentMode = false;
+	else
 		silentMode = true;
 
+	// always show dialog when CTRL is pressed
+	var myKeyState = ScriptUI.environment.keyboardState;
+	if (myKeyState.ctrlKey)
+	{
+		silentMode = false;
+	}
+
+	if (silentMode)
+	{
 		var cbFileNameAsFolder = dlg.funcArea.content.grpDest.cbFileNameAsFolder;
 		if (cbFileNameAsFolder.value) {
 			prefs.folder = "/" + basename(app.activeDocument.fullName);
