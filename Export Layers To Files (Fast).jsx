@@ -162,6 +162,7 @@ var groups;
 var layerCount = 0;
 var visibleLayerCount = 0;
 var selectedLayerCount = 0;
+var silentMode = false;
 
 
 //
@@ -258,18 +259,24 @@ function main()
 			var count = exportLayers(prefs.exportLayerTarget, progressBarWindow);
 			var exportDuration = profiler.getDuration(true, true);
 
+			var showMessage = !silentMode;
+
 			var message = "";
 			if (userCancelled) {
 				message += "Export cancelled!\n\n";
+				showMessage = true;
 			}
 			message += "Saved " + count.count + " files.";
 			if (env.profiling) {
 				message += "\n\nExport function took " + profiler.format(collectionDuration) + " + " + profiler.format(exportDuration) + " to perform.";
+				showMessage = true;
 			}
 			if (count.error) {
 				message += "\n\nSome layers failed to export! (Are there many layers with the same name?)";
+				showMessage = true;
 			}
-			alert(message, "Finished", count.error);
+			if (showMessage)
+				alert(message, "Finished", count.error);
 		}
 
 		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
@@ -995,6 +1002,37 @@ function showDialog()
 	}
 	catch (err) {
 		alert("Failed to restore previous settings. Default settings applied.\n\n(Error: " + err.toString() + ")", "Settings not restored", true);
+	}
+
+	var myKeyState = ScriptUI.environment.keyboardState;
+	if (! myKeyState.ctrlKey)
+	{
+		silentMode = true;
+
+		var cbFileNameAsFolder = dlg.funcArea.content.grpDest.cbFileNameAsFolder;
+		if (cbFileNameAsFolder.value) {
+			prefs.folder = "/" + basename(app.activeDocument.fullName);
+		}
+
+		prefs.outputPrefix = dlg.funcArea.content.grpPrefix.editPrefix.text;
+		if (prefs.outputPrefix.length > 0) {
+			prefs.outputPrefix += " ";
+		}
+
+		prefs.groupsAsFolders = dlg.funcArea.content.grpPrefix.cbFolderTree.value;
+
+		prefs.naming = FileNameType.forIndex(dlg.funcArea.content.grpNaming.drdNaming.selection.index);
+		prefs.namingLetterCase = LetterCase.forIndex(dlg.funcArea.content.grpLetterCase.drdLetterCase.selection.index);
+		prefs.trim = TrimPrefType.forIndex(dlg.funcArea.content.grpTrim.drdTrim.selection.index);
+		prefs.forceTrimMethod = dlg.funcArea.content.grpTrim.cbTrim.value;
+		var cbBgLayer = dlg.funcArea.content.cbBgLayer;
+		prefs.bgLayer = (cbBgLayer.value && cbBgLayer.enabled);
+
+		var selIdx = formatDropDown.selection.index;
+		formatOpts[selIdx].opt.onDialogSelect(formatOpts[selIdx].controlRoot);
+
+		saveSettings(dlg, formatOpts);
+		return 1;
 	}
 
 	dlg.center();
