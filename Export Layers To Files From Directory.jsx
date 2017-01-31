@@ -310,7 +310,13 @@ function buildFileList(folder)
                 }
             }
             else {
-                list.push(files[i]);
+                var fileName = files[i].name;
+                if (fileName.length > 3) {
+                    var extension = fileName.substr(fileName.length - 3);
+                    if (extension.toUpperCase() == "PSD") {
+                        list.push(files[i]);
+                    }
+                }
             }
         }
     }
