@@ -18,7 +18,7 @@
 
 // enable double-clicking from Finder/Explorer (CS2 and higher)
 #target photoshop
-app.bringToFront();
+//app.bringToFront();
 
 //
 // Type definitions
