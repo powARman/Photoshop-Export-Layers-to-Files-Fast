@@ -1,4 +1,4 @@
-// NAME:
+﻿// NAME:
 // 	Export Layers To Files
 
 // DESCRIPTION:
@@ -1136,7 +1136,15 @@ function saveSettings(dlg, formatOpts)
 
 	// Collect settings from the dialog controls.
 
-	var desc = new ActionDescriptor();
+	var desc;
+	try {
+		// might throw if settings not present (not saved previously)
+		desc = app.getCustomOptions(USER_SETTINGS_ID);
+	}
+	catch (e) {
+		// start fresh
+		desc = new ActionDescriptor();
+	}
 
 	with (dlg.funcArea.content) {
 		// common
