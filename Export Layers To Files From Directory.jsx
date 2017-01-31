@@ -26,7 +26,7 @@ var DEFAULT_SETTINGS = {
 
 var env = new Object();
 var prefs = new Object();
-var scriptFile = File('/c/Program Files/Adobe/Adobe Photoshop CC 2017/Presets/Scripts/Export Layers To Files (Fast).jsx');
+var scriptFileName = "Export Layers To Files (Fast).jsx";
 
 //
 // Entry point
@@ -45,6 +45,7 @@ function main()
     prefs.srcFolder = Folder.myDocuments;
     prefs.destFolder = Folder.myDocuments;
 
+    var scriptFile = File(env.scriptFileDirectory + "/" + scriptFileName);
     scriptFile.open('r');
     var script = scriptFile.read();
     scriptFile.close();
@@ -53,6 +54,7 @@ function main()
         files = buildFileList(prefs.srcFolder);
         for (i = 0; i < files.length; i++) {
             var document = app.open(files[i]);
+            app.playbackDisplayDialogs = DialogModes.ERROR;
             eval(script);
             document.close(SaveOptions.DONOTSAVECHANGES);
         }
