@@ -1,0 +1,31 @@
+﻿dialog {
+    text: "Export Layers To Files From Directory",
+    orientation: "column",
+    alignChildren: "fill",
+    grpSrc: Group {
+        orientation: "row",
+        lblSrc: StaticText {
+            preferredSize: [100, 20],
+            alignment: "left",
+            text: "Source:"
+        },
+        txtSrc: EditText {preferredSize: [400, 0], properties: {readonly: false}},
+        btnSrc: Button {text: "Browse..."},
+    },
+    grpDest: Group {
+        orientation: "row",
+        lblDest: StaticText {
+            preferredSize: [100, 20],
+            alignment: "left",
+            text: "Destination:"
+        },
+        txtDest: EditText {preferredSize: [400, 0], properties: {readonly: false}},
+        btnDest: Button {text: "Browse..."},
+    },
+    buttons: Group {
+        orientation: "row",
+        btnRun: Button {text: "Run"},
+        btnCancel: Button {text: "Cancel"},
+        btnSave: Button {text: "Save and Cancel", helpTip: "Save current settings and cancel."},
+    }
+}
