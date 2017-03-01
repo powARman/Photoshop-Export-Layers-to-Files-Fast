@@ -624,6 +624,9 @@ function makeFileNameFromLayerName(layer, stripExt)
 	if (fileName.length == 0) {
 		fileName = "Layer";
 	}
+	// AUX is not a valid filename in Windows, so rename it
+	if (fileName.toUpperCase() == "AUX")
+		fileName = "AUX_renamed";
 	return getUniqueFileName(fileName, layer);
 }
 
