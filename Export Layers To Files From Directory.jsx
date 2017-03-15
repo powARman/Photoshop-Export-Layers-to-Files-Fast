@@ -107,7 +107,7 @@ function main()
     prefs.overwrite = false;
 
     // create progress bar
-    var progressBarWindow = createProgressBar("");//app.activeDocument.name);
+    var progressBarWindow = createProgressBar();
     if (! progressBarWindow) {
         return "cancel";
     }
@@ -116,6 +116,9 @@ function main()
         files = buildFileList(prefs.srcFolder);
         for (i = 0; i < files.length; i++) {
             var document = app.open(files[i]);
+
+            setProgressBarTitle(progressBarWindow, i, files.length, document.name);
+
             app.playbackDisplayDialogs = DialogModes.ERROR;
             if (! exportLayersFromDocument(document, progressBarWindow)) {
                 return "cancel";
@@ -214,7 +217,7 @@ function exportLayersFromDocument(document, progressBarWindow)
         return false;
     }
     layerCount = layerCountResult.layerCount;
-    
+
     prefs.folder = "";
     if (prefs.fileNameAsFolder) {
         prefs.folder = "/" + basename(app.activeDocument.fullName);
@@ -1057,10 +1060,10 @@ function buildFileList(folder)
 // User interface
 //
 
-function createProgressBar(fileName)
+function createProgressBar()
 {
     // read progress bar resource
-    var rsrcFile = new File(env.scriptFileDirectory + "/progress_bar.json");
+    var rsrcFile = new File(env.scriptFileDirectory + "/ExportBatchProgressBar.json");
     var rsrcString = loadResource(rsrcFile);
     if (! rsrcString) {
         return false;
@@ -1075,8 +1078,6 @@ function createProgressBar(fileName)
         alert("Progress bar resource is corrupt! Please, redownload the script with all files.", "Error", true);
         return false;
     }
-    
-    win.text += fileName;
 
     win.barRow.cancelBtn.onClick = function() {
         userCancelled = true;
@@ -1091,6 +1092,11 @@ function createProgressBar(fileName)
         return false;
     };
     return win;
+}
+
+function setProgressBarTitle(win, index, count, fileName)
+{
+    win.text = "Processing (" + (index + 1) + "/" + count + "): " + fileName;
 }
 
 function showProgressBar(win, message, maxValue)
@@ -1166,7 +1172,7 @@ function indexOf(array, element)
 
 function basename(path) {
     var base = new String(path);
-    base = base.substring(base.lastIndexOf('/') + 1); 
+    base = base.substring(base.lastIndexOf('/') + 1);
     if (base.lastIndexOf(".") != -1)
         base = base.substring(0, base.lastIndexOf("."));
     return base;
