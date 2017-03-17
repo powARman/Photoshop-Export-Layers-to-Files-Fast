@@ -44,6 +44,8 @@ var layerCount = 0;
 var layers;
 var groups;
 
+var logFile;
+
 //
 // Entry point
 //
@@ -113,6 +115,10 @@ function main()
     }
 
     if (showDialog() === 1) {
+
+        logFile = new File(prefs.destFolder + "/extractLog.txt");
+        logFile.open("w");
+
         files = buildFileList(prefs.srcFolder);
 
         var cancelled = false;
@@ -127,6 +133,8 @@ function main()
             }
             document.close(SaveOptions.DONOTSAVECHANGES);
         }
+
+        logFile.close();
 
         if (cancelled) {
             return "cancel";
@@ -216,6 +224,8 @@ function showDialog()
 function exportLayersFromDocument(document, progressBarWindow)
 {
     userCancelled = false;
+
+    logFile.writeln("Extracting " + document.name);
 
     // count layers
     var layerCountResult = countLayers(progressBarWindow);
@@ -662,6 +672,29 @@ function makeVisible(layer)
     }
 }
 
+function logLayerInfo(layer, indentation)
+{
+    var boundsString = "" +
+            layer.bounds[0].value + " " +
+            layer.bounds[1].value + " " +
+            (layer.bounds[2].value - layer.bounds[0].value) + " " +
+            (layer.bounds[3].value - layer.bounds[1].value);
+    var boundsNoFxString = "";
+
+    if (layer.bounds[0] != layer.boundsNoEffects[0] ||
+        layer.bounds[1] != layer.boundsNoEffects[1] ||
+        layer.bounds[2] != layer.boundsNoEffects[2] ||
+        layer.bounds[3] != layer.boundsNoEffects[3]) {
+        boundsNoFxString += " (" +
+            layer.boundsNoEffects[0].value + " " +
+            layer.boundsNoEffects[1].value + " " +
+            (layer.boundsNoEffects[2].value - layer.bounds[0].value) + " " +
+            (layer.boundsNoEffects[3].value - layer.bounds[1].value) + ")";
+    }
+
+    logFile.writeln(indentation + layer.name.replace(/^\s+|\s+$/gm, '') + ": " +
+        boundsString + boundsNoFxString);
+}
 //
 // ActionManager mud
 //
@@ -671,6 +704,8 @@ function makeVisible(layer)
 
 function collectLayersAM(progressBarWindow)
 {
+    var indentation = "  ";
+
     var layers = [],
         groups = [];
     var layerCount = 0;
@@ -730,6 +765,8 @@ function collectLayersAM(progressBarWindow)
 
                     var activeLayer = app.activeDocument.activeLayer;
 
+                    logLayerInfo(activeLayer, indentation);
+
                     if (layerSection == "layerSectionContent") {
                         if (! isAdjustmentLayer(activeLayer)) {
                             var layer = {layer: activeLayer, parent: currentGroup};
@@ -740,6 +777,7 @@ function collectLayersAM(progressBarWindow)
                         }
                     }
                     else {
+                        indentation += "  ";
                         var group = {layer: activeLayer, parent: currentGroup, children: []};
                         if (group.parent == null) {
                             groups.push(group);
@@ -751,6 +789,7 @@ function collectLayersAM(progressBarWindow)
                     }
                 }
                 else if (layerSection == "layerSectionEnd") {
+                    indentation = indentation.substr(0, indentation.length - 2);
                     currentGroup = currentGroup.parent;
                 }
 
