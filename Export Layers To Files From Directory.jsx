@@ -114,16 +114,22 @@ function main()
 
     if (showDialog() === 1) {
         files = buildFileList(prefs.srcFolder);
-        for (i = 0; i < files.length; i++) {
+
+        var cancelled = false;
+        for (i = 0; i < files.length && !cancelled; i++) {
             var document = app.open(files[i]);
 
             setProgressBarTitle(progressBarWindow, i, files.length, document.name);
 
             app.playbackDisplayDialogs = DialogModes.ERROR;
             if (! exportLayersFromDocument(document, progressBarWindow)) {
-                return "cancel";
+                cancelled = true;
             }
             document.close(SaveOptions.DONOTSAVECHANGES);
+        }
+
+        if (cancelled) {
+            return "cancel";
         }
     }
     else {
