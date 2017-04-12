@@ -738,7 +738,7 @@ function collectLayersAM(progressBarWindow)
         var idSlct = app.charIDToTypeID("slct");
         var idMkVs = app.charIDToTypeID("MkVs");
 
-        var FEW_LAYERS = 10;
+        var FEW_LAYERS = 1;
 
         if (progressBarWindow) {
             // The layer count is actually + 1 if there's a background present, but it should be no biggie.
@@ -794,7 +794,7 @@ function collectLayersAM(progressBarWindow)
                 }
 
                 if (progressBarWindow && ((i % FEW_LAYERS == 0) || (i == layerCount))) {
-                    updateProgressBar(progressBarWindow);
+                    updateProgressBar(progressBarWindow, "Collecting " + (layerCount - i) + " of " + layerCount + "...");
                     repaintProgressBar(progressBarWindow);
                     if (userCancelled) {
                         throw new Error("cancel");
